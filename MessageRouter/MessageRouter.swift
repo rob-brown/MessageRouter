@@ -80,7 +80,7 @@ open class MessageRouter<T> {
     open func add<R: Recipient>(_ object: R, _ function: @escaping (R)->MessageHandler) -> MessageRouterEntry<T> {
         let entry = MessageRouterEntry(object: object, function: { function($0 as! R) })
         sync {
-            self.entries += [entry]
+            self.entries = self.entries.filter({ $0.object != nil }) + [entry]
         }
         return entry
     }
@@ -138,7 +138,7 @@ open class MessageRouter<T> {
      */
     open func remove(_ entry: MessageRouterEntry<T>) {
         sync {
-            self.entries = self.entries.filter { $0 !== entry }
+            self.entries = self.entries.filter { $0.object != nil && $0 !== entry }
         }
     }
     
@@ -151,10 +151,15 @@ open class MessageRouter<T> {
         var handlers = [MessageHandler]()
         
         sync {
+            var newEntries = [MessageRouterEntry<T>]()
+
             for entry in self.entries {
                 guard let object = entry.object else { continue }
                 handlers += [entry.function(object)]
+                newEntries.append(entry)
             }
+
+            self.entries = newEntries
         }
         
         for handler in handlers {
