@@ -130,15 +130,36 @@ open class MessageRouter<T> {
         
         return mappedRouter
     }
-    
+
     /**
      Removes the given entry from the list of recipients.
-     
+
      - parameter entry: The entry to remove.
      */
+    @available(*, deprecated, message: "Use `remove(entry:)` instead.")
     open func remove(_ entry: MessageRouterEntry<T>) {
+        remove(entry: entry)
+    }
+
+    /**
+     Removes the given entry from the list of recipients.
+
+     - parameter entry: The entry to remove.
+     */
+    open func remove(entry: MessageRouterEntry<T>) {
         sync {
             self.entries = self.entries.filter { $0.object != nil && $0 !== entry }
+        }
+    }
+
+    /**
+     Removes all entries for the given recipient.
+
+     - parameter recipient: The recipient to remove.
+     */
+    open func remove(recipient: Recipient) {
+        sync {
+            self.entries = self.entries.filter { $0.object !== recipient }
         }
     }
     

@@ -22,20 +22,31 @@ class MessageRouterTests: XCTestCase {
         XCTAssertEqual(router.copyEntries().count, 1)
     }
 
-    func testRemoveFunction() {
+    func testRemoveFunctionEntry() {
         XCTAssertEqual(router.copyEntries().count, 0)
         let entry = router.add { _ in }
         XCTAssertEqual(router.copyEntries().count, 1)
-        router.remove(entry)
+        router.remove(entry: entry)
+        XCTAssertEqual(router.copyEntries().count, 0)
+    }
+
+    func testRemoveRecipientEntry() {
+        XCTAssertEqual(router.copyEntries().count, 0)
+        let recipient = MessageRouterTestHelper()
+        let entry = router.add(recipient, type(of: recipient).doNothing)
+        XCTAssertEqual(router.copyEntries().count, 1)
+        router.remove(entry: entry)
         XCTAssertEqual(router.copyEntries().count, 0)
     }
 
     func testRemoveRecipient() {
         XCTAssertEqual(router.copyEntries().count, 0)
         let recipient = MessageRouterTestHelper()
-        let entry = router.add(recipient, type(of: recipient).doNothing)
+        router.add(recipient, type(of: recipient).doNothing)
         XCTAssertEqual(router.copyEntries().count, 1)
-        router.remove(entry)
+        router.remove(recipient: NSNumber(value: 42))
+        XCTAssertEqual(router.copyEntries().count, 1)
+        router.remove(recipient: recipient)
         XCTAssertEqual(router.copyEntries().count, 0)
     }
 
@@ -50,7 +61,7 @@ class MessageRouterTests: XCTestCase {
 
     func testSendAfterRemove() {
         let entry = router.add { _ in XCTFail("Should not be called") }
-        router.remove(entry)
+        router.remove(entry: entry)
         router.send(42)
     }
 
