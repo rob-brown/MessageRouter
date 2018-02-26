@@ -162,6 +162,26 @@ open class MessageRouter<T> {
             self.entries = self.entries.filter { $0.object !== recipient }
         }
     }
+
+    /**
+     Returns `true` if the given recipient has any entries.
+
+     - parameter recipient: The recipient to check for any present entries.
+     */
+    open func isSubscribed(recipient: Recipient) -> Bool {
+        var result = false
+
+        sync {
+            for entry in self.entries {
+                if entry.object === recipient {
+                    result = true
+                    return
+                }
+            }
+        }
+
+        return result
+    }
     
     /**
      Sends the given message to all the registered recipients.

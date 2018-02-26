@@ -50,6 +50,15 @@ class MessageRouterTests: XCTestCase {
         XCTAssertEqual(router.copyEntries().count, 0)
     }
 
+    func testIsSubscribed() {
+        let recipient = MessageRouterTestHelper()
+        XCTAssertFalse(router.isSubscribed(recipient: recipient))
+        router.add(recipient, type(of: recipient).doNothing)
+        XCTAssertTrue(router.isSubscribed(recipient: recipient))
+        router.remove(recipient: recipient)
+        XCTAssertFalse(router.isSubscribed(recipient: recipient))
+    }
+
     func testSend() {
         // Sends a varying number of messages to a varying number of recipients.
         for recipientCount in 0...3 {
